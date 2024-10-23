@@ -15,12 +15,20 @@ abstract class ChatRemoteDataSource {
     required int limit,
     required int status,
   });
+  Future<List<Meeting>> getArchivedConversations({
+    required int skip,
+    required int limit,
+  });
   Future<bool> deleteConversation({required int meetingId});
+  Future<Meeting?> archivedConversation({required int code});
   Future<Meeting?> leaveConversation({required int code});
   Future<Meeting?> addMember({required int code, required int userId});
   Future<Meeting?> deleteMember({required int code, required int userId});
   Future<Meeting?> acceptInvite({required int meetingId});
-  Future<bool> updateConversation({required Meeting meeting});
+  Future<bool> updateConversation({
+    required Meeting meeting,
+    String? password,
+  });
 }
 
 @LazySingleton(as: ChatRemoteDataSource)
@@ -38,6 +46,30 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
   }) async {
     final Response response = await _remoteData.getRoute(
       "${ApiEndpoints.meetingConversations}/$status",
+      query: "limit=$limit&skip=$skip",
+    );
+
+    if ([StatusCode.ok, StatusCode.created].contains(response.statusCode)) {
+      final Map<String, dynamic> message = {
+        "conversations": (response.data as List)
+            .map((meeting) => Meeting.fromMap(meeting))
+            .toList(),
+        "key": WaterbusSdk.privateMessageKey,
+      };
+
+      return await compute(_handleDecryptLastMessage, message);
+    }
+
+    return [];
+  }
+
+  @override
+  Future<List<Meeting>> getArchivedConversations({
+    required int skip,
+    required int limit,
+  }) async {
+    final Response response = await _remoteData.getRoute(
+      ApiEndpoints.archivedConversations,
       query: "limit=$limit&skip=$skip",
     );
 
@@ -83,10 +115,13 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
   }
 
   @override
-  Future<bool> updateConversation({required Meeting meeting}) async {
+  Future<bool> updateConversation({
+    required Meeting meeting,
+    String? password,
+  }) async {
     final Response response = await _remoteData.putRoute(
       ApiEndpoints.meetings,
-      meeting.toMapCreate(),
+      meeting.toMapCreate(password: password),
     );
 
     return response.statusCode == StatusCode.ok;
@@ -108,8 +143,12 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
     );
 
     if (response.statusCode == StatusCode.ok) {
-      final Map<String, dynamic> rawData = response.data;
-      return Meeting.fromMap(rawData);
+      final Map<String, dynamic> message = {
+        "conversations": [Meeting.fromMap(response.data)],
+        "key": WaterbusSdk.privateMessageKey,
+      };
+
+      return (await compute(_handleDecryptLastMessage, message)).first;
     }
 
     return null;
@@ -122,7 +161,12 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
     );
 
     if ([StatusCode.ok, StatusCode.created].contains(response.statusCode)) {
-      return Meeting.fromMap(response.data);
+      final Map<String, dynamic> message = {
+        "conversations": [Meeting.fromMap(response.data)],
+        "key": WaterbusSdk.privateMessageKey,
+      };
+
+      return (await compute(_handleDecryptLastMessage, message)).first;
     }
 
     return null;
@@ -136,7 +180,12 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
     );
 
     if ([StatusCode.ok, StatusCode.created].contains(response.statusCode)) {
-      return Meeting.fromMap(response.data);
+      final Map<String, dynamic> message = {
+        "conversations": [Meeting.fromMap(response.data)],
+        "key": WaterbusSdk.privateMessageKey,
+      };
+
+      return (await compute(_handleDecryptLastMessage, message)).first;
     }
 
     return null;
@@ -153,7 +202,30 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
     );
 
     if ([StatusCode.ok, StatusCode.created].contains(response.statusCode)) {
-      return Meeting.fromMap(response.data);
+      final Map<String, dynamic> message = {
+        "conversations": [Meeting.fromMap(response.data)],
+        "key": WaterbusSdk.privateMessageKey,
+      };
+
+      return (await compute(_handleDecryptLastMessage, message)).first;
+    }
+
+    return null;
+  }
+
+  @override
+  Future<Meeting?> archivedConversation({required int code}) async {
+    final Response response = await _remoteData.postRoute(
+      '${ApiEndpoints.archivedMeeeting}/$code',
+    );
+
+    if ([StatusCode.ok, StatusCode.created].contains(response.statusCode)) {
+      final Map<String, dynamic> message = {
+        "conversations": [Meeting.fromMap(response.data)],
+        "key": WaterbusSdk.privateMessageKey,
+      };
+
+      return (await compute(_handleDecryptLastMessage, message)).first;
     }
 
     return null;

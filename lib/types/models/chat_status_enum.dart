@@ -1,19 +1,18 @@
 import 'package:collection/collection.dart';
 
-enum ChatStatusEnum {
-  invite(0),
+enum MeetingStatus {
   archived(1),
-  join(2);
+  active(0);
 
-  const ChatStatusEnum(this.status);
+  const MeetingStatus(this.status);
 
   final int status;
 }
 
-extension ChatStatusEnumX on int {
-  ChatStatusEnum get getChatStatusEnum {
-    return ChatStatusEnum.values
+extension MeetingStatusX on int {
+  MeetingStatus get getMeetingStatusEnum {
+    return MeetingStatus.values
             .firstWhereOrNull((status) => status.status == this) ??
-        ChatStatusEnum.join;
+        MeetingStatus.active;
   }
 }

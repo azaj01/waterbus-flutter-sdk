@@ -9,12 +9,20 @@ abstract class ChatRepository {
     required int limit,
     required int skip,
   });
-  Future<bool> updateConversation({required Meeting meeting});
+  Future<List<Meeting>> getArchivedConversations({
+    required int skip,
+    required int limit,
+  });
+  Future<bool> updateConversation({
+    required Meeting meeting,
+    String? password,
+  });
   Future<bool> deleteConversation(int meetingId);
   Future<Meeting?> leaveConversation({required int code});
   Future<Meeting?> addMember({required int code, required int userId});
   Future<Meeting?> deleteMember({required int code, required int userId});
   Future<Meeting?> acceptInvite({required int meetingId});
+  Future<Meeting?> archivedConversation({required int code});
 }
 
 @LazySingleton(as: ChatRepository)
@@ -39,6 +47,20 @@ class ChatRepositoryImpl extends ChatRepository {
     );
 
     return conversations;
+  }
+
+  @override
+  Future<List<Meeting>> getArchivedConversations({
+    required limit,
+    required skip,
+  }) async {
+    final List<Meeting> archivedConversations =
+        await _remoteDataSource.getArchivedConversations(
+      skip: skip,
+      limit: limit,
+    );
+
+    return archivedConversations;
   }
 
   @override
@@ -92,11 +114,24 @@ class ChatRepositoryImpl extends ChatRepository {
   }
 
   @override
-  Future<bool> updateConversation({required Meeting meeting}) async {
+  Future<bool> updateConversation({
+    required Meeting meeting,
+    String? password,
+  }) async {
     final bool isSucceed = await _remoteDataSource.updateConversation(
       meeting: meeting,
+      password: password,
     );
 
     return isSucceed;
+  }
+
+  @override
+  Future<Meeting?> archivedConversation({required int code}) async {
+    final Meeting? meeting = await _remoteDataSource.archivedConversation(
+      code: code,
+    );
+
+    return meeting;
   }
 }
