@@ -335,8 +335,25 @@ class SdkCore extends WaterbusSdkInterface {
   }
 
   @override
-  Future<bool> updateConversation({required Meeting meeting}) async {
-    return await _chatRepository.updateConversation(meeting: meeting);
+  Future<List<Meeting>> getArchivedConversations({
+    int limit = 10,
+    required int skip,
+  }) async {
+    return await _chatRepository.getArchivedConversations(
+      limit: limit,
+      skip: skip,
+    );
+  }
+
+  @override
+  Future<bool> updateConversation({
+    required Meeting meeting,
+    String? password,
+  }) async {
+    return await _chatRepository.updateConversation(
+      meeting: meeting,
+      password: password,
+    );
   }
 
   @override
@@ -352,6 +369,11 @@ class SdkCore extends WaterbusSdkInterface {
   @override
   Future<Meeting?> leaveConversation({required int code}) async {
     return await _chatRepository.leaveConversation(code: code);
+  }
+
+  @override
+  Future<Meeting?> archivedConversation({required int code}) async {
+    return await _chatRepository.archivedConversation(code: code);
   }
 
   @override
