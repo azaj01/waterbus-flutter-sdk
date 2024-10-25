@@ -258,6 +258,11 @@ class SdkCore extends WaterbusSdkInterface {
   }
 
   @override
+  Future<void> toggleRaiseHand() async {
+    await _rtcManager.toggleRaiseHand();
+  }
+
+  @override
   Future<void> toggleSpeakerPhone() async {
     await _rtcManager.toggleSpeakerPhone();
   }

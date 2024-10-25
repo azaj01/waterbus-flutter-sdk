@@ -462,10 +462,13 @@ class WaterbusWebRTCManagerIpml extends WaterbusWebRTCManager {
   }
 
   @override
-  void toggleRaiseHand() {
+  Future<void> toggleRaiseHand() async {
     if (_mParticipant == null) return;
 
     _mParticipant!.isHandRaising = !_mParticipant!.isHandRaising;
+
+    _notify(CallbackEvents.shouldBeUpdateState);
+
     _socketEmiter.setHandRaising(_mParticipant!.isHandRaising);
   }
 
@@ -525,7 +528,10 @@ class WaterbusWebRTCManagerIpml extends WaterbusWebRTCManager {
 
   @override
   void setHandRaising({required String targetId, required bool isRaising}) {
+    if (_subscribers[targetId]?.isHandRaising == isRaising) return;
+
     _subscribers[targetId]?.isHandRaising = isRaising;
+
     _notify(CallbackEvents.shouldBeUpdateState);
   }
 
