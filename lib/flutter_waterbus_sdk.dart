@@ -292,6 +292,10 @@ class WaterbusSdk {
     return await _sdk.leaveConversation(code: code);
   }
 
+  Future<Meeting?> archivedConversation(int code) async {
+    return await _sdk.archivedConversation(code: code);
+  }
+
   Future<bool> deleteConversation(int conversationId) async {
     return await _sdk.deleteConversation(conversationId);
   }
@@ -308,8 +312,24 @@ class WaterbusSdk {
     );
   }
 
-  Future<bool> updateConversation({required Meeting meeting}) async {
-    return await _sdk.updateConversation(meeting: meeting);
+  Future<List<Meeting>> getArchivedConversations({
+    required int skip,
+    int limit = 10,
+  }) async {
+    return await _sdk.getArchivedConversations(
+      limit: limit,
+      skip: skip,
+    );
+  }
+
+  Future<bool> updateConversation({
+    required Meeting meeting,
+    String? password,
+  }) async {
+    return await _sdk.updateConversation(
+      meeting: meeting,
+      password: password,
+    );
   }
 
   // Messages

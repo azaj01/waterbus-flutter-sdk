@@ -13,7 +13,7 @@ class Meeting {
   final int code;
   final DateTime? createdAt;
   final DateTime? latestJoinedAt;
-  final ChatStatusEnum status;
+  final MeetingStatus status;
   final String? avatar;
   MessageModel? latestMessage;
 
@@ -25,7 +25,7 @@ class Meeting {
     this.code = -1,
     this.createdAt,
     this.latestJoinedAt,
-    this.status = ChatStatusEnum.join,
+    this.status = MeetingStatus.active,
     this.latestMessage,
     this.avatar,
   });
@@ -38,7 +38,7 @@ class Meeting {
     int? code,
     DateTime? createdAt,
     DateTime? latestJoinedAt,
-    ChatStatusEnum? status,
+    MeetingStatus? status,
     MessageModel? latestMessage,
     String? avatar,
   }) {
@@ -95,7 +95,8 @@ class Meeting {
               .map<Member>((member) => Member.fromMap(member))
               .toList()
           : [],
-      status: (int.tryParse(map['status'].toString()) ?? 0).getChatStatusEnum,
+      status: (int.tryParse(map['status']?.toString() ?? "0") ?? 0)
+          .getMeetingStatusEnum,
       createdAt:
           DateTime.fromMillisecondsSinceEpoch(int.parse(map['createdAt']))
               .toLocal(),
@@ -123,8 +124,8 @@ class Meeting {
               .toList()
           : [],
       code: map['code'] ?? 0,
-      status: (int.tryParse(map['status']?.toString() ?? "") ?? 0)
-          .getChatStatusEnum,
+      status: (int.tryParse(map['status']?.toString() ?? "0") ?? 0)
+          .getMeetingStatusEnum,
       createdAt: DateTime.parse(map['createdAt']).toLocal(),
       latestJoinedAt:
           DateTime.parse(map['latestJoinedAt'] ?? map['createdAt'])
