@@ -532,7 +532,7 @@ class WaterbusWebRTCManagerIpml extends WaterbusWebRTCManager {
 
     _subscribers[targetId]?.isHandRaising = isRaising;
 
-    _notify(CallbackEvents.shouldBeUpdateState);
+    _notify(CallbackEvents.raiseHand);
   }
 
   @override
