@@ -190,8 +190,8 @@ class WaterbusSdk {
     await _sdk.toggleAudio();
   }
 
-  Future<void> toggleRaiseHand() async {
-    await _sdk.toggleRaiseHand();
+  void toggleRaiseHand() {
+    _sdk.toggleRaiseHand();
   }
 
   Future<void> toggleSpeakerPhone() async {

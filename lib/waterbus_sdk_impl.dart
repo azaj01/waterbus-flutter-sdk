@@ -258,8 +258,8 @@ class SdkCore extends WaterbusSdkInterface {
   }
 
   @override
-  Future<void> toggleRaiseHand() async {
-    await _rtcManager.toggleRaiseHand();
+  void toggleRaiseHand() {
+    _rtcManager.toggleRaiseHand();
   }
 
   @override

@@ -462,7 +462,7 @@ class WaterbusWebRTCManagerIpml extends WaterbusWebRTCManager {
   }
 
   @override
-  Future<void> toggleRaiseHand() async {
+  void toggleRaiseHand() {
     if (_mParticipant == null) return;
 
     _mParticipant!.isHandRaising = !_mParticipant!.isHandRaising;
