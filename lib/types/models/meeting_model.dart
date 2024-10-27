@@ -128,8 +128,7 @@ class Meeting {
           .getMeetingStatusEnum,
       createdAt: DateTime.parse(map['createdAt']).toLocal(),
       latestJoinedAt:
-          DateTime.parse(map['latestJoinedAt'] ?? map['createdAt'])
-              .toLocal(),
+          DateTime.parse(map['latestJoinedAt'] ?? map['createdAt']).toLocal(),
       latestMessage: map['latestMessage'] != null &&
               map['latestMessage'] is Map<String, dynamic>
           ? MessageModel.fromMap(map['latestMessage'])
