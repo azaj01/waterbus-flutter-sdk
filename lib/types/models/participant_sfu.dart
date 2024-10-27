@@ -75,6 +75,7 @@ class ParticipantSFU extends Equatable {
 
     return other.isVideoEnabled == isVideoEnabled &&
         other.isAudioEnabled == isAudioEnabled &&
+        other.isHandRaising == isHandRaising &&
         other.isSharingScreen == isSharingScreen &&
         other.peerConnection == peerConnection &&
         other.cameraSource == cameraSource &&
@@ -85,6 +86,7 @@ class ParticipantSFU extends Equatable {
   int get hashCode {
     return isVideoEnabled.hashCode ^
         isAudioEnabled.hashCode ^
+        isHandRaising.hashCode ^
         isSharingScreen.hashCode ^
         peerConnection.hashCode ^
         cameraSource.hashCode ^
@@ -96,6 +98,7 @@ class ParticipantSFU extends Equatable {
     return [
       isVideoEnabled,
       isAudioEnabled,
+      isHandRaising,
       isE2eeEnabled,
       isSpeakerPhoneEnabled,
       isSharingScreen,
@@ -110,6 +113,7 @@ class ParticipantSFU extends Equatable {
     String? ownerId,
     bool? isVideoEnabled,
     bool? isAudioEnabled,
+    bool? isHandRaising,
     bool? isE2eeEnabled,
     bool? isSpeakerPhoneEnabled,
     bool? isSharingScreen,
@@ -125,6 +129,7 @@ class ParticipantSFU extends Equatable {
       ownerId: ownerId ?? this.ownerId,
       isVideoEnabled: isVideoEnabled ?? this.isVideoEnabled,
       isAudioEnabled: isAudioEnabled ?? this.isAudioEnabled,
+      isHandRaising: isHandRaising ?? this.isHandRaising,
       isE2eeEnabled: isE2eeEnabled ?? this.isE2eeEnabled,
       isSpeakerPhoneEnabled:
           isSpeakerPhoneEnabled ?? this.isSpeakerPhoneEnabled,
@@ -190,6 +195,10 @@ extension ParticipantSFUX on ParticipantSFU {
       screenSource?.dispose();
       screenSource = null;
     }
+  }
+
+  Future<void> setHandRaising(bool isRaising) async {
+    isHandRaising = isRaising;
   }
 
   Future<void> dispose() async {

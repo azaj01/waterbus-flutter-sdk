@@ -89,6 +89,8 @@ abstract class WaterbusSdkInterface {
   Future<bool> stopRecord();
   Future<void> leaveRoom();
 
+  void toggleRaiseHand();
+
   // white board
   Future<void> startWhiteBoard();
   Future<void> updateWhiteBoard(

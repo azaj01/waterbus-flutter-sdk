@@ -272,7 +272,6 @@ class SocketHandlerImpl extends SocketHandler {
 
         final String participantId = data['participantId'];
         final bool isRaising = data['isRaising'];
-
         _rtcManager.setHandRaising(
           targetId: participantId,
           isRaising: isRaising,
