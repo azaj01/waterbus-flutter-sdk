@@ -1,3 +1,10 @@
+## 1.5.2
+
+* [Feat] add white board
+* [Feat] add record
+* [Feat] add raise hand
+* [Fix] PlatformView iOS
+
 ## 1.5.1
 
 * [Fix]: Isolate on web

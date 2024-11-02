@@ -6,14 +6,12 @@ import 'package:waterbus_sdk/flutter_waterbus_sdk.dart';
 
 class MediaSource {
   MediaStream? stream;
-  RTCVideoRenderer? renderer;
-  RTCVideoPlatformViewController? viewController;
+  VideoRenderer? renderer;
   bool hasFirstFrameRendered;
   final Function()? onFirstFrameRendered;
   MediaSource({
     this.stream,
     this.renderer,
-    this.viewController,
     this.hasFirstFrameRendered = false,
     this.onFirstFrameRendered,
   }) {
@@ -30,8 +28,8 @@ class MediaSource {
         objectFit: objectFit,
         mirror: mirror,
         onViewReady: (controller) {
-          viewController = controller;
-          viewController?.srcObject = stream;
+          renderer = controller;
+          renderer?.srcObject = stream;
         },
       );
     }
@@ -41,7 +39,7 @@ class MediaSource {
     }
 
     return RTCVideoView(
-      renderer!,
+      renderer as RTCVideoRenderer,
       key: textureId == null ? null : Key(textureId!.toString()),
       objectFit: objectFit,
       mirror: mirror,
@@ -49,17 +47,11 @@ class MediaSource {
     );
   }
 
-  void setPlatformView(RTCVideoPlatformViewController controller) {
-    viewController = controller;
-    viewController?.srcObject = stream;
-  }
-
   Future<void> dispose() async {
+    renderer?.srcObject = null;
     await renderer?.dispose();
-    await viewController?.dispose();
     await stream?.dispose();
     renderer = null;
-    viewController = null;
     stream = null;
   }
 
@@ -72,11 +64,7 @@ class MediaSource {
 
     this.stream = stream;
 
-    if (WebRTC.platformIsIOS) {
-      viewController?.srcObject = stream;
-    } else {
-      renderer?.srcObject = stream;
-    }
+    renderer?.srcObject = stream;
   }
 
   Future<void> _initRendererIfNeeded() async {
@@ -102,15 +90,13 @@ class MediaSource {
 
   MediaSource copyWith({
     MediaStream? stream,
-    RTCVideoRenderer? renderer,
-    RTCVideoPlatformViewController? viewController,
+    VideoRenderer? renderer,
     bool? hasFirstFrameRendered,
     Function()? onFirstFrameRendered,
   }) {
     return MediaSource(
       stream: stream ?? this.stream,
       renderer: renderer ?? this.renderer,
-      viewController: viewController ?? this.viewController,
       hasFirstFrameRendered:
           hasFirstFrameRendered ?? this.hasFirstFrameRendered,
       onFirstFrameRendered: onFirstFrameRendered ?? this.onFirstFrameRendered,
@@ -119,7 +105,7 @@ class MediaSource {
 
   @override
   String toString() {
-    return 'MediaSource(stream: $stream, renderer: $renderer, viewController: $viewController, hasFirstFrameRendered: $hasFirstFrameRendered, onFirstFrameRendered: $onFirstFrameRendered)';
+    return 'MediaSource(stream: $stream, renderer: $renderer, hasFirstFrameRendered: $hasFirstFrameRendered, onFirstFrameRendered: $onFirstFrameRendered)';
   }
 
   @override
@@ -128,7 +114,6 @@ class MediaSource {
 
     return other.stream == stream &&
         other.renderer == renderer &&
-        other.viewController == viewController &&
         other.hasFirstFrameRendered == hasFirstFrameRendered &&
         other.onFirstFrameRendered == onFirstFrameRendered;
   }
@@ -137,7 +122,6 @@ class MediaSource {
   int get hashCode {
     return stream.hashCode ^
         renderer.hashCode ^
-        viewController.hashCode ^
         hasFirstFrameRendered.hashCode ^
         onFirstFrameRendered.hashCode;
   }
