@@ -7,24 +7,26 @@ import 'package:waterbus_sdk/constants/api_enpoints.dart';
 import 'package:waterbus_sdk/constants/http_status_code.dart';
 import 'package:waterbus_sdk/core/api/base/base_remote_data.dart';
 import 'package:waterbus_sdk/flutter_waterbus_sdk.dart';
+import 'package:waterbus_sdk/types/models/exceptions/exceptions.dart';
+import 'package:waterbus_sdk/types/result.dart';
 import 'package:waterbus_sdk/utils/encrypt/encrypt.dart';
 
 abstract class MessageRemoteDataSource {
-  Future<List<MessageModel>> getMessageByRoom({
+  Future<Result<List<MessageModel>>> getMessageByRoom({
     required int meetingId,
     required int limit,
     required int skip,
   });
 
-  Future<MessageModel?> sendMessage({
+  Future<Result<MessageModel>> sendMessage({
     required int meetingId,
     required String data,
   });
-  Future<MessageModel?> editMessage({
+  Future<Result<MessageModel>> editMessage({
     required int messageId,
     required String data,
   });
-  Future<MessageModel?> deleteMessage({required int messageId});
+  Future<Result<MessageModel>> deleteMessage({required int messageId});
 }
 
 @LazySingleton(as: MessageRemoteDataSource)
@@ -36,7 +38,7 @@ class MessageRemoteDataSourceImpl extends MessageRemoteDataSource {
   );
 
   @override
-  Future<List<MessageModel>> getMessageByRoom({
+  Future<Result<List<MessageModel>>> getMessageByRoom({
     required int meetingId,
     required int limit,
     required int skip,
@@ -51,13 +53,17 @@ class MessageRemoteDataSourceImpl extends MessageRemoteDataSource {
           .map((message) => MessageModel.fromMap(message))
           .toList();
 
-      return await compute(_handleDecryptMessages, {
-        "messages": messages,
-        "key": WaterbusSdk.privateMessageKey,
-      });
+      return Result.success(
+        await compute(_handleDecryptMessages, {
+          "messages": messages,
+          "key": WaterbusSdk.privateMessageKey,
+        }),
+      );
     }
 
-    return [];
+    return Result.failure(
+      (response.data['message'] as String).messageException,
+    );
   }
 
   static Future<List<MessageModel>> _handleDecryptMessages(
@@ -78,7 +84,7 @@ class MessageRemoteDataSourceImpl extends MessageRemoteDataSource {
   }
 
   @override
-  Future<MessageModel?> sendMessage({
+  Future<Result<MessageModel>> sendMessage({
     required int meetingId,
     required String data,
   }) async {
@@ -91,14 +97,18 @@ class MessageRemoteDataSourceImpl extends MessageRemoteDataSource {
     );
 
     if ([StatusCode.ok, StatusCode.created].contains(response.statusCode)) {
-      return MessageModel.fromMap(response.data).copyWith(data: data);
+      return Result.success(
+        MessageModel.fromMap(response.data).copyWith(data: data),
+      );
     }
 
-    return null;
+    return Result.failure(
+      (response.data['message'] as String).messageException,
+    );
   }
 
   @override
-  Future<MessageModel?> editMessage({
+  Future<Result<MessageModel>> editMessage({
     required int messageId,
     required String data,
   }) async {
@@ -110,22 +120,30 @@ class MessageRemoteDataSourceImpl extends MessageRemoteDataSource {
     );
 
     if ([StatusCode.ok, StatusCode.created].contains(response.statusCode)) {
-      return MessageModel.fromMap(response.data).copyWith(data: data);
+      return Result.success(
+        MessageModel.fromMap(response.data).copyWith(data: data),
+      );
     }
 
-    return null;
+    return Result.failure(
+      (response.data['message'] as String).messageException,
+    );
   }
 
   @override
-  Future<MessageModel?> deleteMessage({required int messageId}) async {
+  Future<Result<MessageModel>> deleteMessage({
+    required int messageId,
+  }) async {
     final Response response = await _remoteData.deleteRoute(
       "${ApiEndpoints.chats}/$messageId",
     );
 
     if ([StatusCode.ok, StatusCode.created].contains(response.statusCode)) {
-      return MessageModel.fromMap(response.data);
+      return Result.success(MessageModel.fromMap(response.data));
     }
 
-    return null;
+    return Result.failure(
+      (response.data['message'] as String).messageException,
+    );
   }
 }

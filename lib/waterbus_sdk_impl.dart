@@ -20,6 +20,7 @@ import 'package:waterbus_sdk/types/enums/draw_action.dart';
 import 'package:waterbus_sdk/types/models/create_meeting_params.dart';
 import 'package:waterbus_sdk/types/models/draw_model.dart';
 import 'package:waterbus_sdk/types/models/record_model.dart';
+import 'package:waterbus_sdk/types/result.dart';
 import 'package:waterbus_sdk/utils/logger/logger.dart';
 import 'package:waterbus_sdk/utils/replaykit/replaykit_helper.dart';
 import 'package:waterbus_sdk/waterbus_sdk_interface.dart';
@@ -322,12 +323,12 @@ class SdkCore extends WaterbusSdkInterface {
 
   // Chat
   @override
-  Future<bool> deleteConversation(int conversationId) async {
+  Future<Result<bool>> deleteConversation(int conversationId) async {
     return await _chatRepository.deleteConversation(conversationId);
   }
 
   @override
-  Future<List<Meeting>> getConversations({
+  Future<Result<List<Meeting>>> getConversations({
     required int skip,
     int limit = 10,
     int status = 2,
@@ -340,7 +341,7 @@ class SdkCore extends WaterbusSdkInterface {
   }
 
   @override
-  Future<List<Meeting>> getArchivedConversations({
+  Future<Result<List<Meeting>>> getArchivedConversations({
     int limit = 10,
     required int skip,
   }) async {
@@ -351,7 +352,7 @@ class SdkCore extends WaterbusSdkInterface {
   }
 
   @override
-  Future<bool> updateConversation({
+  Future<Result<bool>> updateConversation({
     required Meeting meeting,
     String? password,
   }) async {
@@ -362,27 +363,30 @@ class SdkCore extends WaterbusSdkInterface {
   }
 
   @override
-  Future<Meeting?> acceptInvite({required int meetingId}) async {
+  Future<Result<Meeting>> acceptInvite({required int meetingId}) async {
     return await _chatRepository.acceptInvite(meetingId: meetingId);
   }
 
   @override
-  Future<Meeting?> addMember({required int code, required int userId}) async {
+  Future<Result<Meeting>> addMember({
+    required int code,
+    required int userId,
+  }) async {
     return await _chatRepository.addMember(code: code, userId: userId);
   }
 
   @override
-  Future<Meeting?> leaveConversation({required int code}) async {
+  Future<Result<Meeting>> leaveConversation({required int code}) async {
     return await _chatRepository.leaveConversation(code: code);
   }
 
   @override
-  Future<Meeting?> archivedConversation({required int code}) async {
+  Future<Result<Meeting>> archivedConversation({required int code}) async {
     return await _chatRepository.archivedConversation(code: code);
   }
 
   @override
-  Future<Meeting?> deleteMember({
+  Future<Result<Meeting>> deleteMember({
     required int code,
     required int userId,
   }) async {
@@ -391,7 +395,7 @@ class SdkCore extends WaterbusSdkInterface {
 
   // Messages
   @override
-  Future<List<MessageModel>> getMessageByRoom({
+  Future<Result<List<MessageModel>>> getMessageByRoom({
     required int meetingId,
     required int skip,
     int limit = 10,
@@ -404,7 +408,7 @@ class SdkCore extends WaterbusSdkInterface {
   }
 
   @override
-  Future<MessageModel?> sendMessage({
+  Future<Result<MessageModel>> sendMessage({
     required int meetingId,
     required String data,
   }) async {
@@ -415,7 +419,7 @@ class SdkCore extends WaterbusSdkInterface {
   }
 
   @override
-  Future<MessageModel?> editMessage({
+  Future<Result<MessageModel>> editMessage({
     required int messageId,
     required String data,
   }) async {
@@ -426,7 +430,7 @@ class SdkCore extends WaterbusSdkInterface {
   }
 
   @override
-  Future<MessageModel?> deleteMessage({required int messageId}) async {
+  Future<Result<MessageModel>> deleteMessage({required int messageId}) async {
     return await _messageRepository.deleteMessage(messageId: messageId);
   }
 
