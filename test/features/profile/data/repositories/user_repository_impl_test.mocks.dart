@@ -4,15 +4,16 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 
-import 'dart:async' as _i3;
-import 'dart:typed_data' as _i5;
+import 'dart:async' as _i4;
+import 'dart:typed_data' as _i6;
 
 import 'package:mockito/mockito.dart' as _i1;
 
-import 'package:waterbus_sdk/types/models/user_model.dart' as _i4;
+import 'package:waterbus_sdk/types/models/user_model.dart' as _i5;
+import 'package:waterbus_sdk/types/result.dart' as _i2;
 
 import 'package:waterbus_sdk/core/api/user/datasources/user_remote_datasource.dart'
-    as _i2;
+    as _i3;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -27,53 +28,119 @@ import 'package:waterbus_sdk/core/api/user/datasources/user_remote_datasource.da
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
+class _FakeResult_0<T> extends _i1.SmartFake implements _i2.Result<T> {
+  _FakeResult_0(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
 /// A class which mocks [UserRemoteDataSource].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockUserRemoteDataSource extends _i1.Mock
-    implements _i2.UserRemoteDataSource {
+    implements _i3.UserRemoteDataSource {
   @override
-  _i3.Future<_i4.User?> getUserProfile() => (super.noSuchMethod(
+  _i4.Future<_i2.Result<_i5.User>> getUserProfile() => (super.noSuchMethod(
         Invocation.method(
           #getUserProfile,
           [],
         ),
-        returnValue: _i3.Future<_i4.User?>.value(),
-        returnValueForMissingStub: _i3.Future<_i4.User?>.value(),
-      ) as _i3.Future<_i4.User?>);
+        returnValue:
+            _i4.Future<_i2.Result<_i5.User>>.value(_FakeResult_0<_i5.User>(
+          this,
+          Invocation.method(
+            #getUserProfile,
+            [],
+          ),
+        )),
+        returnValueForMissingStub:
+            _i4.Future<_i2.Result<_i5.User>>.value(_FakeResult_0<_i5.User>(
+          this,
+          Invocation.method(
+            #getUserProfile,
+            [],
+          ),
+        )),
+      ) as _i4.Future<_i2.Result<_i5.User>>);
 
   @override
-  _i3.Future<bool> updateUserProfile(_i4.User? user) => (super.noSuchMethod(
+  _i4.Future<_i2.Result<bool>> updateUserProfile(_i5.User? user) =>
+      (super.noSuchMethod(
         Invocation.method(
           #updateUserProfile,
           [user],
         ),
-        returnValue: _i3.Future<bool>.value(false),
-        returnValueForMissingStub: _i3.Future<bool>.value(false),
-      ) as _i3.Future<bool>);
+        returnValue: _i4.Future<_i2.Result<bool>>.value(_FakeResult_0<bool>(
+          this,
+          Invocation.method(
+            #updateUserProfile,
+            [user],
+          ),
+        )),
+        returnValueForMissingStub:
+            _i4.Future<_i2.Result<bool>>.value(_FakeResult_0<bool>(
+          this,
+          Invocation.method(
+            #updateUserProfile,
+            [user],
+          ),
+        )),
+      ) as _i4.Future<_i2.Result<bool>>);
 
   @override
-  _i3.Future<bool> updateUsername(String? username) => (super.noSuchMethod(
+  _i4.Future<_i2.Result<bool>> updateUsername(String? username) =>
+      (super.noSuchMethod(
         Invocation.method(
           #updateUsername,
           [username],
         ),
-        returnValue: _i3.Future<bool>.value(false),
-        returnValueForMissingStub: _i3.Future<bool>.value(false),
-      ) as _i3.Future<bool>);
+        returnValue: _i4.Future<_i2.Result<bool>>.value(_FakeResult_0<bool>(
+          this,
+          Invocation.method(
+            #updateUsername,
+            [username],
+          ),
+        )),
+        returnValueForMissingStub:
+            _i4.Future<_i2.Result<bool>>.value(_FakeResult_0<bool>(
+          this,
+          Invocation.method(
+            #updateUsername,
+            [username],
+          ),
+        )),
+      ) as _i4.Future<_i2.Result<bool>>);
 
   @override
-  _i3.Future<bool?> checkUsername(String? username) => (super.noSuchMethod(
+  _i4.Future<_i2.Result<bool>> checkUsername(String? username) =>
+      (super.noSuchMethod(
         Invocation.method(
           #checkUsername,
           [username],
         ),
-        returnValue: _i3.Future<bool?>.value(),
-        returnValueForMissingStub: _i3.Future<bool?>.value(),
-      ) as _i3.Future<bool?>);
+        returnValue: _i4.Future<_i2.Result<bool>>.value(_FakeResult_0<bool>(
+          this,
+          Invocation.method(
+            #checkUsername,
+            [username],
+          ),
+        )),
+        returnValueForMissingStub:
+            _i4.Future<_i2.Result<bool>>.value(_FakeResult_0<bool>(
+          this,
+          Invocation.method(
+            #checkUsername,
+            [username],
+          ),
+        )),
+      ) as _i4.Future<_i2.Result<bool>>);
 
   @override
-  _i3.Future<List<_i4.User>> searchUsers({
+  _i4.Future<_i2.Result<List<_i5.User>>> searchUsers({
     required String? keyword,
     required int? skip,
     required int? limit,
@@ -88,25 +155,61 @@ class MockUserRemoteDataSource extends _i1.Mock
             #limit: limit,
           },
         ),
-        returnValue: _i3.Future<List<_i4.User>>.value(<_i4.User>[]),
-        returnValueForMissingStub:
-            _i3.Future<List<_i4.User>>.value(<_i4.User>[]),
-      ) as _i3.Future<List<_i4.User>>);
+        returnValue: _i4.Future<_i2.Result<List<_i5.User>>>.value(
+            _FakeResult_0<List<_i5.User>>(
+          this,
+          Invocation.method(
+            #searchUsers,
+            [],
+            {
+              #keyword: keyword,
+              #skip: skip,
+              #limit: limit,
+            },
+          ),
+        )),
+        returnValueForMissingStub: _i4.Future<_i2.Result<List<_i5.User>>>.value(
+            _FakeResult_0<List<_i5.User>>(
+          this,
+          Invocation.method(
+            #searchUsers,
+            [],
+            {
+              #keyword: keyword,
+              #skip: skip,
+              #limit: limit,
+            },
+          ),
+        )),
+      ) as _i4.Future<_i2.Result<List<_i5.User>>>);
 
   @override
-  _i3.Future<String?> getPresignedUrl() => (super.noSuchMethod(
+  _i4.Future<_i2.Result<String>> getPresignedUrl() => (super.noSuchMethod(
         Invocation.method(
           #getPresignedUrl,
           [],
         ),
-        returnValue: _i3.Future<String?>.value(),
-        returnValueForMissingStub: _i3.Future<String?>.value(),
-      ) as _i3.Future<String?>);
+        returnValue: _i4.Future<_i2.Result<String>>.value(_FakeResult_0<String>(
+          this,
+          Invocation.method(
+            #getPresignedUrl,
+            [],
+          ),
+        )),
+        returnValueForMissingStub:
+            _i4.Future<_i2.Result<String>>.value(_FakeResult_0<String>(
+          this,
+          Invocation.method(
+            #getPresignedUrl,
+            [],
+          ),
+        )),
+      ) as _i4.Future<_i2.Result<String>>);
 
   @override
-  _i3.Future<String?> uploadImageToS3({
+  _i4.Future<_i2.Result<String>> uploadImageToS3({
     required String? uploadUrl,
-    required _i5.Uint8List? image,
+    required _i6.Uint8List? image,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -117,7 +220,28 @@ class MockUserRemoteDataSource extends _i1.Mock
             #image: image,
           },
         ),
-        returnValue: _i3.Future<String?>.value(),
-        returnValueForMissingStub: _i3.Future<String?>.value(),
-      ) as _i3.Future<String?>);
+        returnValue: _i4.Future<_i2.Result<String>>.value(_FakeResult_0<String>(
+          this,
+          Invocation.method(
+            #uploadImageToS3,
+            [],
+            {
+              #uploadUrl: uploadUrl,
+              #image: image,
+            },
+          ),
+        )),
+        returnValueForMissingStub:
+            _i4.Future<_i2.Result<String>>.value(_FakeResult_0<String>(
+          this,
+          Invocation.method(
+            #uploadImageToS3,
+            [],
+            {
+              #uploadUrl: uploadUrl,
+              #image: image,
+            },
+          ),
+        )),
+      ) as _i4.Future<_i2.Result<String>>);
 }
