@@ -5,13 +5,15 @@ import 'package:waterbus_sdk/constants/api_enpoints.dart';
 import 'package:waterbus_sdk/constants/http_status_code.dart';
 import 'package:waterbus_sdk/core/api/auth/datasources/auth_local_datasource.dart';
 import 'package:waterbus_sdk/core/api/base/base_remote_data.dart';
+import 'package:waterbus_sdk/types/error/failures.dart';
 import 'package:waterbus_sdk/types/models/auth_payload_model.dart';
 import 'package:waterbus_sdk/types/models/user_model.dart';
+import 'package:waterbus_sdk/types/result.dart';
 
 abstract class AuthRemoteDataSource {
   Future<(String?, String?)> refreshToken();
-  Future<User?> signInWithSocial(AuthPayloadModel authPayload);
-  Future<bool> logOut();
+  Future<Result<User>> signInWithSocial(AuthPayloadModel authPayload);
+  Future<Result<bool>> logOut();
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -22,7 +24,7 @@ class AuthRemoteDataSourceImpl extends AuthRemoteDataSource {
   AuthRemoteDataSourceImpl(this._baseRemoteData, this._localDataSource);
 
   @override
-  Future<User?> signInWithSocial(AuthPayloadModel authPayload) async {
+  Future<Result<User>> signInWithSocial(AuthPayloadModel authPayload) async {
     final Map<String, dynamic> body = authPayload.toMap();
 
     final Response response = await _baseRemoteData.postRoute(
@@ -39,10 +41,10 @@ class AuthRemoteDataSourceImpl extends AuthRemoteDataSource {
         refreshToken: refreshToken,
       );
 
-      return User.fromMap(response.data['user']);
+      return Result.success(User.fromMap(response.data['user']));
     }
 
-    return null;
+    return Result.failure(ServerFailure());
   }
 
   @override
@@ -61,11 +63,15 @@ class AuthRemoteDataSourceImpl extends AuthRemoteDataSource {
   }
 
   @override
-  Future<bool> logOut() async {
+  Future<Result<bool>> logOut() async {
     final Response response = await _baseRemoteData.deleteRoute(
       ApiEndpoints.auth,
     );
 
-    return response.statusCode == StatusCode.noContent;
+    if (response.statusCode == StatusCode.noContent) {
+      return Result.success(true);
+    }
+
+    return Result.failure(ServerFailure());
   }
 }

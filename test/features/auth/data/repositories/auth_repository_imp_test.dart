@@ -8,6 +8,7 @@ import 'package:waterbus_sdk/core/api/auth/datasources/auth_local_datasource.dar
 import 'package:waterbus_sdk/core/api/auth/datasources/auth_remote_datasource.dart';
 import 'package:waterbus_sdk/core/api/auth/repositories/auth_repository.dart';
 import 'package:waterbus_sdk/types/index.dart';
+import 'package:waterbus_sdk/types/result.dart';
 import '../../../../constants/sample_file_path.dart';
 import '../../../../fixtures/fixture_reader.dart';
 import 'auth_repository_imp_test.mocks.dart';
@@ -42,16 +43,16 @@ void main() {
       final User user = User.fromMap(userJson);
 
       when(mockAuthRemoteDataSource.signInWithSocial(authParams)).thenAnswer(
-        (realInvocation) => Future.value(user),
+        (realInvocation) => Future.value(Result.success(user)),
       );
 
       // act
-      final User? result = await repository.loginWithSocial(
+      final Result<User> result = await repository.loginWithSocial(
         authParams,
       );
 
       // assert
-      expect(result, user);
+      expect(result.value, user);
 
       verify(repository.loginWithSocial(authParams));
       verifyNever(
@@ -64,14 +65,14 @@ void main() {
     test('log out success', () async {
       // arrange
       when(mockAuthRemoteDataSource.logOut()).thenAnswer(
-        (realInvocation) => Future.value(true),
+        (realInvocation) => Future.value(Result.success(true)),
       );
 
       // act
-      final bool result = await repository.logOut();
+      final Result<bool> result = await repository.logOut();
 
       // assert
-      expect(result, true);
+      expect(result.value, true);
 
       verify(mockAuthRemoteDataSource.logOut());
       verify(mockAuthLocalDataSource.clearToken());

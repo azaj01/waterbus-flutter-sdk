@@ -4,18 +4,19 @@ import 'package:injectable/injectable.dart';
 
 import 'package:waterbus_sdk/core/api/user/datasources/user_remote_datasource.dart';
 import 'package:waterbus_sdk/types/models/user_model.dart';
+import 'package:waterbus_sdk/types/result.dart';
 
 abstract class UserRepository {
-  Future<User?> getUserProfile();
-  Future<User?> updateUserProfile(User user);
-  Future<bool> updateUsername(String username);
-  Future<bool> checkUsername(String username);
-  Future<String?> getPresignedUrl();
-  Future<String?> uploadImageToS3({
+  Future<Result<User>> getUserProfile();
+  Future<Result<bool>> updateUserProfile(User user);
+  Future<Result<bool>> updateUsername(String username);
+  Future<Result<bool>> checkUsername(String username);
+  Future<Result<String>> getPresignedUrl();
+  Future<Result<String>> uploadImageToS3({
     required String uploadUrl,
     required Uint8List image,
   });
-  Future<List<User>> searchUsers({
+  Future<Result<List<User>>> searchUsers({
     required String keyword,
     required int skip,
     required int limit,
@@ -29,70 +30,68 @@ class UserRepositoryImpl extends UserRepository {
   UserRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<User?> getUserProfile() async {
-    final User? user = await _remoteDataSource.getUserProfile();
+  Future<Result<User>> getUserProfile() async {
+    final Result<User> user = await _remoteDataSource.getUserProfile();
 
     return user;
   }
 
   @override
-  Future<User?> updateUserProfile(User user) async {
-    final bool isUpdateSucceed = await _remoteDataSource.updateUserProfile(
+  Future<Result<bool>> updateUserProfile(User user) async {
+    final Result<bool> result = await _remoteDataSource.updateUserProfile(
       user,
     );
 
-    if (!isUpdateSucceed) return null;
-
-    return user;
+    return result;
   }
 
   @override
-  Future<String?> getPresignedUrl() async {
-    final String? presignedUrl = await _remoteDataSource.getPresignedUrl();
+  Future<Result<String>> getPresignedUrl() async {
+    final Result<String> result = await _remoteDataSource.getPresignedUrl();
 
-    return presignedUrl;
+    return result;
   }
 
   @override
-  Future<String?> uploadImageToS3({
+  Future<Result<String>> uploadImageToS3({
     required String uploadUrl,
     required Uint8List image,
   }) async {
-    final String? urlToImage = await _remoteDataSource.uploadImageToS3(
+    final Result<String> result = await _remoteDataSource.uploadImageToS3(
       uploadUrl: uploadUrl,
       image: image,
     );
 
-    return urlToImage;
+    return result;
   }
 
   @override
-  Future<bool> updateUsername(String username) async {
-    final bool isUpdateSucceed =
+  Future<Result<bool>> updateUsername(String username) async {
+    final Result<bool> result =
         await _remoteDataSource.updateUsername(username);
 
-    return isUpdateSucceed;
+    return result;
   }
 
   @override
-  Future<bool> checkUsername(String username) async {
-    final bool? isRegistered = await _remoteDataSource.checkUsername(username);
+  Future<Result<bool>> checkUsername(String username) async {
+    final Result<bool> result = await _remoteDataSource.checkUsername(username);
 
-    return isRegistered ?? false;
+    return result;
   }
 
   @override
-  Future<List<User>> searchUsers({
+  Future<Result<List<User>>> searchUsers({
     required String keyword,
     required int skip,
     required int limit,
   }) async {
-    final List<User> users = await _remoteDataSource.searchUsers(
+    final Result<List<User>> result = await _remoteDataSource.searchUsers(
       keyword: keyword,
       limit: limit,
       skip: skip,
     );
 
-    return users;
+    return result;
   }
 }

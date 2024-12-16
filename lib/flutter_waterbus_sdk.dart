@@ -86,7 +86,7 @@ class WaterbusSdk {
   }
 
   // Meeting
-  Future<Meeting?> createRoom({
+  Future<Result<Meeting>> createRoom({
     required Meeting meeting,
     required String password,
     required int? userId,
@@ -98,7 +98,7 @@ class WaterbusSdk {
     );
   }
 
-  Future<Meeting?> joinRoom({
+  Future<Result<Meeting>> joinRoom({
     required Meeting meeting,
     required String password,
     required int? userId,
@@ -110,7 +110,7 @@ class WaterbusSdk {
     );
   }
 
-  Future<Meeting?> updateRoom({
+  Future<Result<bool>> updateRoom({
     required Meeting meeting,
     required String password,
     required int? userId,
@@ -122,19 +122,22 @@ class WaterbusSdk {
     );
   }
 
-  Future<Meeting?> getRoomInfo({required int code}) async {
+  Future<Result<Meeting>> getRoomInfo({required int code}) async {
     return await _sdk.getRoomInfo(code);
   }
 
-  Future<List<RecordModel>> getRecords({int skip = 0, int limit = 10}) async {
+  Future<Result<List<RecordModel>>> getRecords({
+    int skip = 0,
+    int limit = 10,
+  }) async {
     return await _sdk.getRecords(skip: skip, limit: limit);
   }
 
-  Future<int?> startRecord() async {
+  Future<Result<int>> startRecord() async {
     return await _sdk.startRecord();
   }
 
-  Future<bool> stopRecord() async {
+  Future<Result<bool>> stopRecord() async {
     return await _sdk.stopRecord();
   }
 
@@ -243,38 +246,38 @@ class WaterbusSdk {
   }
 
   // User
-  Future<User?> getProfile() async {
+  Future<Result<User>> getProfile() async {
     return await _sdk.getProfile();
   }
 
-  Future<User?> updateProfile({required User user}) async {
+  Future<Result<bool>> updateProfile({required User user}) async {
     return await _sdk.updateProfile(user: user);
   }
 
-  Future<bool?> updateUsername({
+  Future<Result<bool>> updateUsername({
     required String username,
   }) async {
     return await _sdk.updateUsername(username: username);
   }
 
-  Future<bool> checkUsername({
+  Future<Result<bool>> checkUsername({
     required String username,
   }) async {
     return await _sdk.checkUsername(username: username);
   }
 
-  Future<String?> getPresignedUrl() async {
+  Future<Result<String>> getPresignedUrl() async {
     return await _sdk.getPresignedUrl();
   }
 
-  Future<String?> uploadAvatar({
+  Future<Result<String>> uploadAvatar({
     required Uint8List image,
     required String uploadUrl,
   }) async {
     return await _sdk.uploadAvatar(image: image, uploadUrl: uploadUrl);
   }
 
-  Future<List<User>> searchUsers({
+  Future<Result<List<User>>> searchUsers({
     required String keyword,
     required int skip,
     int limit = 10,
@@ -371,15 +374,15 @@ class WaterbusSdk {
   }
 
   // Auth
-  Future<User?> createToken(AuthPayloadModel payload) async {
+  Future<Result<User>> createToken(AuthPayloadModel payload) async {
     return await _sdk.createToken(payload: payload);
   }
 
-  Future<bool> deleteToken() async {
+  Future<Result<bool>> deleteToken() async {
     return await _sdk.deleteToken();
   }
 
-  Future<bool?> renewToken() async {
+  Future<Result<bool>> renewToken() async {
     return await _sdk.refreshToken();
   }
 

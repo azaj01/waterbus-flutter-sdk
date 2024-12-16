@@ -10,21 +10,21 @@ abstract class WaterbusSdkInterface {
   Future<void> initializeApp();
 
   // Auth
-  Future<User?> createToken({required AuthPayloadModel payload});
-  Future<bool> deleteToken();
-  Future<bool> refreshToken();
+  Future<Result<User>> createToken({required AuthPayloadModel payload});
+  Future<Result<bool>> deleteToken();
+  Future<Result<bool>> refreshToken();
 
   // User
-  Future<User?> getProfile();
-  Future<User?> updateProfile({required User user});
-  Future<bool> updateUsername({required String username});
-  Future<bool> checkUsername({required String username});
-  Future<String?> getPresignedUrl();
-  Future<String?> uploadAvatar({
+  Future<Result<User>> getProfile();
+  Future<Result<bool>> updateProfile({required User user});
+  Future<Result<bool>> updateUsername({required String username});
+  Future<Result<bool>> checkUsername({required String username});
+  Future<Result<String>> getPresignedUrl();
+  Future<Result<String>> uploadAvatar({
     required Uint8List image,
     required String uploadUrl,
   });
-  Future<List<User>> searchUsers({
+  Future<Result<List<User>>> searchUsers({
     required String keyword,
     required int skip,
     required int limit,
@@ -71,25 +71,28 @@ abstract class WaterbusSdkInterface {
   Future<Result<MessageModel>> deleteMessage({required int messageId});
 
   // Meeting
-  Future<Meeting?> createRoom({
+  Future<Result<Meeting>> createRoom({
     required Meeting meeting,
     required String password,
     required int? userId,
   });
-  Future<Meeting?> updateRoom({
+  Future<Result<bool>> updateRoom({
     required Meeting meeting,
     required String password,
     required int? userId,
   });
-  Future<Meeting?> joinRoom({
+  Future<Result<Meeting>> joinRoom({
     required Meeting meeting,
     required String password,
     required int? userId,
   });
-  Future<Meeting?> getRoomInfo(int code);
-  Future<List<RecordModel>> getRecords({required int skip, required int limit});
-  Future<int?> startRecord();
-  Future<bool> stopRecord();
+  Future<Result<Meeting>> getRoomInfo(int code);
+  Future<Result<List<RecordModel>>> getRecords({
+    required int skip,
+    required int limit,
+  });
+  Future<Result<int>> startRecord();
+  Future<Result<bool>> stopRecord();
   Future<void> leaveRoom();
 
   void toggleRaiseHand();

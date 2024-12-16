@@ -2,13 +2,15 @@ import 'package:injectable/injectable.dart';
 
 import 'package:waterbus_sdk/core/api/auth/datasources/auth_local_datasource.dart';
 import 'package:waterbus_sdk/core/api/auth/datasources/auth_remote_datasource.dart';
+import 'package:waterbus_sdk/types/error/failures.dart';
 import 'package:waterbus_sdk/types/models/auth_payload_model.dart';
 import 'package:waterbus_sdk/types/models/user_model.dart';
+import 'package:waterbus_sdk/types/result.dart';
 
 abstract class AuthRepository {
-  Future<bool> refreshToken();
-  Future<User?> loginWithSocial(AuthPayloadModel params);
-  Future<bool> logOut();
+  Future<Result<bool>> refreshToken();
+  Future<Result<User>> loginWithSocial(AuthPayloadModel params);
+  Future<Result<bool>> logOut();
 }
 
 @LazySingleton(as: AuthRepository)
@@ -19,33 +21,36 @@ class AuthRepositoryImpl extends AuthRepository {
   AuthRepositoryImpl(this._localDataSource, this._remoteDataSource);
 
   @override
-  Future<User?> loginWithSocial(AuthPayloadModel params) async {
-    final User? response = await _remoteDataSource.signInWithSocial(params);
+  Future<Result<User>> loginWithSocial(AuthPayloadModel params) async {
+    final Result<User> result =
+        await _remoteDataSource.signInWithSocial(params);
 
-    return response;
+    return result;
   }
 
   @override
-  Future<bool> refreshToken() async {
+  Future<Result<bool>> refreshToken() async {
     final (String? accessToken, String? refreshToken) =
         await _remoteDataSource.refreshToken();
 
-    if (accessToken == null || refreshToken == null) return false;
+    if (accessToken == null || refreshToken == null) {
+      return Result.failure(ServerFailure());
+    }
 
     _localDataSource.saveTokens(
       accessToken: accessToken,
       refreshToken: refreshToken,
     );
 
-    return true;
+    return Result.success(true);
   }
 
   @override
-  Future<bool> logOut() async {
-    final bool isSignedOut = await _remoteDataSource.logOut();
+  Future<Result<bool>> logOut() async {
+    final Result<bool> result = await _remoteDataSource.logOut();
 
     _localDataSource.clearToken();
 
-    return isSignedOut;
+    return result;
   }
 }

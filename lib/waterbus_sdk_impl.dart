@@ -17,6 +17,7 @@ import 'package:waterbus_sdk/flutter_waterbus_sdk.dart';
 import 'package:waterbus_sdk/native/picture-in-picture/index.dart';
 import 'package:waterbus_sdk/native/replaykit.dart';
 import 'package:waterbus_sdk/types/enums/draw_action.dart';
+import 'package:waterbus_sdk/types/error/failures.dart';
 import 'package:waterbus_sdk/types/models/create_meeting_params.dart';
 import 'package:waterbus_sdk/types/models/draw_model.dart';
 import 'package:waterbus_sdk/types/models/record_model.dart';
@@ -74,7 +75,7 @@ class SdkCore extends WaterbusSdkInterface {
 
   // Meeting
   @override
-  Future<Meeting?> createRoom({
+  Future<Result<Meeting>> createRoom({
     required Meeting meeting,
     required String password,
     required int? userId,
@@ -89,14 +90,14 @@ class SdkCore extends WaterbusSdkInterface {
   }
 
   @override
-  Future<Meeting?> joinRoom({
+  Future<Result<Meeting>> joinRoom({
     required Meeting meeting,
     required String password,
     required int? userId,
   }) async {
-    if (!_webSocket.isConnected) return null;
+    if (!_webSocket.isConnected) return Result.failure(ServerFailure());
 
-    late final Meeting? room;
+    late final Result<Meeting> room;
 
     if (password.isEmpty) {
       room = await _meetingRepository.joinMeetingWithoutPassword(
@@ -116,19 +117,21 @@ class SdkCore extends WaterbusSdkInterface {
       );
     }
 
-    if (room != null) {
-      final int mParticipantIndex = room.participants.lastIndexWhere(
+    if (room.value != null) {
+      final Meeting meeting = room.value!;
+
+      final int mParticipantIndex = meeting.participants.lastIndexWhere(
         (participant) => participant.isMe,
       );
 
-      if (mParticipantIndex < 0) return null;
+      if (mParticipantIndex < 0) return Result.failure(ServerFailure());
 
       await _joinRoom(
-        roomId: room.code.toString(),
-        participantId: room.participants[mParticipantIndex].id,
+        roomId: meeting.code.toString(),
+        participantId: meeting.participants[mParticipantIndex].id,
       );
 
-      final List<String> targetIds = room.participants
+      final List<String> targetIds = meeting.participants
           .where((participant) => !participant.isMe)
           .map((participant) => participant.id.toString())
           .toList();
@@ -136,11 +139,11 @@ class SdkCore extends WaterbusSdkInterface {
       _subscribe(targetIds);
     }
 
-    return room;
+    return Result.success(meeting);
   }
 
   @override
-  Future<Meeting?> updateRoom({
+  Future<Result<bool>> updateRoom({
     required Meeting meeting,
     required String password,
     required int? userId,
@@ -155,12 +158,12 @@ class SdkCore extends WaterbusSdkInterface {
   }
 
   @override
-  Future<Meeting?> getRoomInfo(int code) async {
+  Future<Result<Meeting>> getRoomInfo(int code) async {
     return await _meetingRepository.getInfoMeeting(code);
   }
 
   @override
-  Future<List<RecordModel>> getRecords({
+  Future<Result<List<RecordModel>>> getRecords({
     required int skip,
     required int limit,
   }) async {
@@ -168,19 +171,19 @@ class SdkCore extends WaterbusSdkInterface {
   }
 
   @override
-  Future<int?> startRecord() async {
+  Future<Result<int>> startRecord() async {
     final String? meetingId = _rtcManager.roomId;
 
-    if (meetingId == null) return null;
+    if (meetingId == null) return Result.failure(ServerFailure());
 
     return await _meetingRepository.startRecord(int.parse(meetingId));
   }
 
   @override
-  Future<bool> stopRecord() async {
+  Future<Result<bool>> stopRecord() async {
     final String? meetingId = _rtcManager.roomId;
 
-    if (meetingId == null) return false;
+    if (meetingId == null) return Result.failure(ServerFailure());
 
     return await _meetingRepository.stopRecord(int.parse(meetingId));
   }
@@ -436,36 +439,36 @@ class SdkCore extends WaterbusSdkInterface {
 
   // User
   @override
-  Future<User?> getProfile() async {
+  Future<Result<User>> getProfile() async {
     return await _userRepository.getUserProfile();
   }
 
   @override
-  Future<User?> updateProfile({required User user}) async {
+  Future<Result<bool>> updateProfile({required User user}) async {
     return await _userRepository.updateUserProfile(user);
   }
 
   @override
-  Future<bool> updateUsername({
+  Future<Result<bool>> updateUsername({
     required String username,
   }) async {
     return await _userRepository.updateUsername(username);
   }
 
   @override
-  Future<bool> checkUsername({
+  Future<Result<bool>> checkUsername({
     required String username,
   }) async {
     return await _userRepository.checkUsername(username);
   }
 
   @override
-  Future<String?> getPresignedUrl() async {
+  Future<Result<String>> getPresignedUrl() async {
     return await _userRepository.getPresignedUrl();
   }
 
   @override
-  Future<String?> uploadAvatar({
+  Future<Result<String>> uploadAvatar({
     required Uint8List image,
     required String uploadUrl,
   }) async {
@@ -476,7 +479,7 @@ class SdkCore extends WaterbusSdkInterface {
   }
 
   @override
-  Future<List<User>> searchUsers({
+  Future<Result<List<User>>> searchUsers({
     required String keyword,
     required int skip,
     required int limit,
@@ -490,10 +493,10 @@ class SdkCore extends WaterbusSdkInterface {
 
   // Auth
   @override
-  Future<User?> createToken({required AuthPayloadModel payload}) async {
-    final User? user = await _authRepository.loginWithSocial(payload);
+  Future<Result<User>> createToken({required AuthPayloadModel payload}) async {
+    final Result<User> user = await _authRepository.loginWithSocial(payload);
 
-    if (user != null) {
+    if (user.isSuccess) {
       _webSocket.establishConnection(forceConnection: true);
     }
 
@@ -501,14 +504,14 @@ class SdkCore extends WaterbusSdkInterface {
   }
 
   @override
-  Future<bool> deleteToken() async {
+  Future<Result<bool>> deleteToken() async {
     _webSocket.disconnection();
 
     return await _authRepository.logOut();
   }
 
   @override
-  Future<bool> refreshToken() async {
+  Future<Result<bool>> refreshToken() async {
     return await _authRepository.refreshToken();
   }
 
