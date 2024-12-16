@@ -37,8 +37,10 @@ class DioConfiguration {
       await Rhttp.init();
       final rhttpAdapter = await RhttpCompatibleClient.create(
         settings: ClientSettings(
-          timeout: 10.seconds,
-          connectTimeout: 10.seconds,
+          timeoutSettings: TimeoutSettings(
+            timeout: 10.seconds,
+            connectTimeout: 10.seconds,
+          ),
           throwOnStatusCode: false,
         ),
       );
