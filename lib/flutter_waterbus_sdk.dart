@@ -1,4 +1,4 @@
-library waterbus_sdk;
+library;
 
 import 'package:flutter/foundation.dart';
 

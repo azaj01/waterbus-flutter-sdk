@@ -1,4 +1,4 @@
-library dio_flutter_transformer;
+library;
 
 import 'dart:convert';
 
