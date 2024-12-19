@@ -10,20 +10,23 @@ import 'package:injectable/injectable.dart';
 import 'package:waterbus_sdk/constants/api_enpoints.dart';
 import 'package:waterbus_sdk/constants/http_status_code.dart';
 import 'package:waterbus_sdk/core/api/base/base_remote_data.dart';
+import 'package:waterbus_sdk/types/error/failures.dart';
+import 'package:waterbus_sdk/types/models/exceptions/exceptions.dart';
 import 'package:waterbus_sdk/types/models/user_model.dart';
+import 'package:waterbus_sdk/types/result.dart';
 
 abstract class UserRemoteDataSource {
-  Future<User?> getUserProfile();
-  Future<bool> updateUserProfile(User user);
-  Future<bool> updateUsername(String username);
-  Future<bool?> checkUsername(String username);
-  Future<List<User>> searchUsers({
+  Future<Result<User>> getUserProfile();
+  Future<Result<bool>> updateUserProfile(User user);
+  Future<Result<bool>> updateUsername(String username);
+  Future<Result<bool>> checkUsername(String username);
+  Future<Result<List<User>>> searchUsers({
     required String keyword,
     required int skip,
     required int limit,
   });
-  Future<String?> getPresignedUrl();
-  Future<String?> uploadImageToS3({
+  Future<Result<String>> getPresignedUrl();
+  Future<Result<String>> uploadImageToS3({
     required String uploadUrl,
     required Uint8List image,
   });
@@ -35,21 +38,21 @@ class UserRemoteDataSourceImpl extends UserRemoteDataSource {
   UserRemoteDataSourceImpl(this._remoteData);
 
   @override
-  Future<String?> getPresignedUrl() async {
+  Future<Result<String>> getPresignedUrl() async {
     final Response response = await _remoteData.postRoute(
       ApiEndpoints.presignedUrlS3,
     );
 
     if (response.statusCode == StatusCode.created) {
       final Map<String, dynamic> rawData = response.data;
-      return rawData['presignedUrl'];
+      return Result.success(rawData['presignedUrl']);
     }
 
-    return null;
+    return Result.failure(ServerFailure());
   }
 
   @override
-  Future<String?> uploadImageToS3({
+  Future<Result<String>> uploadImageToS3({
     required String uploadUrl,
     required Uint8List image,
   }) async {
@@ -63,62 +66,70 @@ class UserRemoteDataSourceImpl extends UserRemoteDataSource {
       );
 
       if (response.statusCode == StatusCode.ok) {
-        return uploadUrl.split('?').first;
+        return Result.success(uploadUrl.split('?').first);
       }
 
-      return null;
+      return Result.failure(ServerFailure());
     } catch (error) {
-      return null;
+      return Result.failure(ServerFailure());
     }
   }
 
   @override
-  Future<User?> getUserProfile() async {
+  Future<Result<User>> getUserProfile() async {
     final Response response = await _remoteData.getRoute(ApiEndpoints.users);
 
     if (response.statusCode == StatusCode.ok) {
       final Map<String, dynamic> rawData = response.data;
-      return User.fromMap(rawData);
+      return Result.success(User.fromMap(rawData));
     }
 
-    return null;
+    return Result.failure(response.data['message'].toString().userException);
   }
 
   @override
-  Future<bool> updateUserProfile(User user) async {
+  Future<Result<bool>> updateUserProfile(User user) async {
     final Response response = await _remoteData.putRoute(
       ApiEndpoints.users,
       user.toMap(),
     );
 
-    return response.statusCode == StatusCode.ok;
+    if (response.statusCode == StatusCode.ok) {
+      return Result.success(true);
+    }
+
+    return Result.failure(response.data['message'].toString().userException);
   }
 
   @override
-  Future<bool> updateUsername(String username) async {
+  Future<Result<bool>> updateUsername(String username) async {
     final Response response = await _remoteData.putRoute(
       "${ApiEndpoints.username}/$username",
       {},
     );
 
-    return response.statusCode == StatusCode.ok;
+    if (response.statusCode == StatusCode.ok) {
+      return Result.success(true);
+    }
+
+    return Result.failure(response.data['message'].toString().userException);
   }
 
   @override
-  Future<bool> checkUsername(String username) async {
+  Future<Result<bool>> checkUsername(String username) async {
     final Response response = await _remoteData.getRoute(
       "${ApiEndpoints.username}/$username",
     );
 
     if (response.statusCode == StatusCode.ok) {
-      return response.data['isRegistered'] ?? false;
+      return Result.success(response.data['isRegistered'] ?? false);
     }
 
-    return false;
+    return Result.failure(response.data['message'].toString().userException);
   }
 
   @override
-  Future<List<User>> searchUsers({
+  Future<Result<List<User>>> searchUsers({
     required String keyword,
     required int skip,
     required int limit,
@@ -131,9 +142,11 @@ class UserRemoteDataSourceImpl extends UserRemoteDataSource {
     if (response.statusCode == StatusCode.ok) {
       final List data = response.data['hits'];
 
-      return data.map((user) => User.fromMap(user['document'])).toList();
+      return Result.success(
+        data.map((user) => User.fromMap(user['document'])).toList(),
+      );
     }
 
-    return [];
+    return Result.failure(response.data['message'].toString().userException);
   }
 }

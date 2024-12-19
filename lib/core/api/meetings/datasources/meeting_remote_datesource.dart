@@ -4,29 +4,34 @@ import 'package:injectable/injectable.dart';
 import 'package:waterbus_sdk/constants/api_enpoints.dart';
 import 'package:waterbus_sdk/constants/http_status_code.dart';
 import 'package:waterbus_sdk/core/api/base/base_remote_data.dart';
+import 'package:waterbus_sdk/types/models/exceptions/exceptions.dart';
 import 'package:waterbus_sdk/types/models/meeting_model.dart';
 import 'package:waterbus_sdk/types/models/record_model.dart';
+import 'package:waterbus_sdk/types/result.dart';
 
 abstract class MeetingRemoteDataSource {
-  Future<Meeting?> createMeeting({
+  Future<Result<Meeting>> createMeeting({
     required Meeting meeting,
     required String password,
   });
-  Future<bool> updateMeeting({
+  Future<Result<bool>> updateMeeting({
     required Meeting meeting,
     required String password,
   });
-  Future<Meeting?> joinMeetingWithPassword({
+  Future<Result<Meeting>> joinMeetingWithPassword({
     required Meeting meeting,
     required String password,
   });
-  Future<Meeting?> joinMeetingWithoutPassword({
+  Future<Result<Meeting>> joinMeetingWithoutPassword({
     required Meeting meeting,
   });
-  Future<Meeting?> getInfoMeeting(int code);
-  Future<List<RecordModel>> getRecords({required int skip, required int limit});
-  Future<int?> startRecord(int roomId);
-  Future<bool> stopRecord(int roomId);
+  Future<Result<Meeting>> getInfoMeeting(int code);
+  Future<Result<List<RecordModel>>> getRecords({
+    required int skip,
+    required int limit,
+  });
+  Future<Result<int>> startRecord(int roomId);
+  Future<Result<bool>> stopRecord(int roomId);
 }
 
 @LazySingleton(as: MeetingRemoteDataSource)
@@ -37,7 +42,7 @@ class MeetingRemoteDataSourceImpl extends MeetingRemoteDataSource {
   );
 
   @override
-  Future<Meeting?> createMeeting({
+  Future<Result<Meeting>> createMeeting({
     required Meeting meeting,
     required String password,
   }) async {
@@ -48,14 +53,14 @@ class MeetingRemoteDataSourceImpl extends MeetingRemoteDataSource {
 
     if (response.statusCode == StatusCode.created) {
       final Map<String, dynamic> rawData = response.data;
-      return Meeting.fromMap(rawData);
+      return Result.success(Meeting.fromMap(rawData));
     }
 
-    return null;
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 
   @override
-  Future<Meeting?> getInfoMeeting(int code) async {
+  Future<Result<Meeting>> getInfoMeeting(int code) async {
     final Response response = await _remoteData.getRoute(
       '${ApiEndpoints.meetings}/$code',
     );
@@ -63,14 +68,14 @@ class MeetingRemoteDataSourceImpl extends MeetingRemoteDataSource {
     if (response.statusCode == StatusCode.ok &&
         response.data.toString().isNotEmpty) {
       final Map<String, dynamic> rawData = response.data;
-      return Meeting.fromMap(rawData);
+      return Result.success(Meeting.fromMap(rawData));
     }
 
-    return null;
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 
   @override
-  Future<Meeting?> joinMeetingWithPassword({
+  Future<Result<Meeting>> joinMeetingWithPassword({
     required Meeting meeting,
     required String password,
   }) async {
@@ -81,16 +86,18 @@ class MeetingRemoteDataSourceImpl extends MeetingRemoteDataSource {
 
     if (response.statusCode == StatusCode.created) {
       final Map<String, dynamic> rawData = response.data;
-      return Meeting.fromMap(rawData).copyWith(
-        latestJoinedAt: DateTime.now(),
+      return Result.success(
+        Meeting.fromMap(rawData).copyWith(
+          latestJoinedAt: DateTime.now(),
+        ),
       );
     }
 
-    return null;
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 
   @override
-  Future<Meeting?> joinMeetingWithoutPassword({
+  Future<Result<Meeting>> joinMeetingWithoutPassword({
     required Meeting meeting,
   }) async {
     final Response response = await _remoteData.postRoute(
@@ -99,16 +106,18 @@ class MeetingRemoteDataSourceImpl extends MeetingRemoteDataSource {
 
     if (response.statusCode == StatusCode.created) {
       final Map<String, dynamic> rawData = response.data;
-      return Meeting.fromMap(rawData).copyWith(
-        latestJoinedAt: DateTime.now(),
+      return Result.success(
+        Meeting.fromMap(rawData).copyWith(
+          latestJoinedAt: DateTime.now(),
+        ),
       );
     }
 
-    return null;
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 
   @override
-  Future<bool> updateMeeting({
+  Future<Result<bool>> updateMeeting({
     required Meeting meeting,
     required String password,
   }) async {
@@ -117,11 +126,15 @@ class MeetingRemoteDataSourceImpl extends MeetingRemoteDataSource {
       meeting.toMapCreate(password: password),
     );
 
-    return response.statusCode == StatusCode.ok;
+    if (response.statusCode == StatusCode.ok) {
+      return Result.success(true);
+    }
+
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 
   @override
-  Future<List<RecordModel>> getRecords({
+  Future<Result<List<RecordModel>>> getRecords({
     required int skip,
     required int limit,
   }) async {
@@ -129,33 +142,39 @@ class MeetingRemoteDataSourceImpl extends MeetingRemoteDataSource {
 
     if (response.statusCode == StatusCode.ok) {
       final List rawData = response.data;
-      return rawData.map((data) => RecordModel.fromMap(data)).toList();
+      return Result.success(
+        rawData.map((data) => RecordModel.fromMap(data)).toList(),
+      );
     }
 
-    return [];
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 
   @override
-  Future<int?> startRecord(int roomId) async {
+  Future<Result<int>> startRecord(int roomId) async {
     final Response response = await _remoteData.postRoute(
       ApiEndpoints.startRecord,
       queryParameters: {"code": roomId},
     );
 
     if (response.statusCode == StatusCode.created) {
-      return response.data['id'];
+      return Result.success(response.data['id']);
     }
 
-    return null;
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 
   @override
-  Future<bool> stopRecord(int roomId) async {
+  Future<Result<bool>> stopRecord(int roomId) async {
     final Response response = await _remoteData.postRoute(
       ApiEndpoints.stopRecord,
       queryParameters: {"code": roomId},
     );
 
-    return response.statusCode == StatusCode.created;
+    if (response.statusCode == StatusCode.created) {
+      return Result.success(true);
+    }
+
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 }

@@ -1,5 +1,5 @@
 @JS()
-library t;
+library;
 
 import 'dart:convert';
 import 'dart:js_interop';

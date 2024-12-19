@@ -1,4 +1,4 @@
-library waterbus_sdk;
+library;
 
 import 'package:flutter/foundation.dart';
 
@@ -12,6 +12,7 @@ import 'package:waterbus_sdk/types/index.dart';
 import 'package:waterbus_sdk/types/models/conversation_socket_event.dart';
 import 'package:waterbus_sdk/types/models/draw_model.dart';
 import 'package:waterbus_sdk/types/models/record_model.dart';
+import 'package:waterbus_sdk/types/result.dart';
 import 'package:waterbus_sdk/utils/callkit/callkit_listener.dart';
 import 'package:waterbus_sdk/waterbus_sdk_interface.dart';
 
@@ -85,7 +86,7 @@ class WaterbusSdk {
   }
 
   // Meeting
-  Future<Meeting?> createRoom({
+  Future<Result<Meeting>> createRoom({
     required Meeting meeting,
     required String password,
     required int? userId,
@@ -97,7 +98,7 @@ class WaterbusSdk {
     );
   }
 
-  Future<Meeting?> joinRoom({
+  Future<Result<Meeting>> joinRoom({
     required Meeting meeting,
     required String password,
     required int? userId,
@@ -109,7 +110,7 @@ class WaterbusSdk {
     );
   }
 
-  Future<Meeting?> updateRoom({
+  Future<Result<bool>> updateRoom({
     required Meeting meeting,
     required String password,
     required int? userId,
@@ -121,19 +122,22 @@ class WaterbusSdk {
     );
   }
 
-  Future<Meeting?> getRoomInfo({required int code}) async {
+  Future<Result<Meeting>> getRoomInfo({required int code}) async {
     return await _sdk.getRoomInfo(code);
   }
 
-  Future<List<RecordModel>> getRecords({int skip = 0, int limit = 10}) async {
+  Future<Result<List<RecordModel>>> getRecords({
+    int skip = 0,
+    int limit = 10,
+  }) async {
     return await _sdk.getRecords(skip: skip, limit: limit);
   }
 
-  Future<int?> startRecord() async {
+  Future<Result<int>> startRecord() async {
     return await _sdk.startRecord();
   }
 
-  Future<bool> stopRecord() async {
+  Future<Result<bool>> stopRecord() async {
     return await _sdk.stopRecord();
   }
 
@@ -242,38 +246,38 @@ class WaterbusSdk {
   }
 
   // User
-  Future<User?> getProfile() async {
+  Future<Result<User>> getProfile() async {
     return await _sdk.getProfile();
   }
 
-  Future<User?> updateProfile({required User user}) async {
+  Future<Result<bool>> updateProfile({required User user}) async {
     return await _sdk.updateProfile(user: user);
   }
 
-  Future<bool?> updateUsername({
+  Future<Result<bool>> updateUsername({
     required String username,
   }) async {
     return await _sdk.updateUsername(username: username);
   }
 
-  Future<bool> checkUsername({
+  Future<Result<bool>> checkUsername({
     required String username,
   }) async {
     return await _sdk.checkUsername(username: username);
   }
 
-  Future<String?> getPresignedUrl() async {
+  Future<Result<String>> getPresignedUrl() async {
     return await _sdk.getPresignedUrl();
   }
 
-  Future<String?> uploadAvatar({
+  Future<Result<String>> uploadAvatar({
     required Uint8List image,
     required String uploadUrl,
   }) async {
     return await _sdk.uploadAvatar(image: image, uploadUrl: uploadUrl);
   }
 
-  Future<List<User>> searchUsers({
+  Future<Result<List<User>>> searchUsers({
     required String keyword,
     required int skip,
     int limit = 10,
@@ -282,31 +286,31 @@ class WaterbusSdk {
   }
 
   // Chat
-  Future<Meeting?> addMember(int code, int userId) async {
+  Future<Result<Meeting>> addMember(int code, int userId) async {
     return await _sdk.addMember(code: code, userId: userId);
   }
 
-  Future<Meeting?> deleteMember(int code, int userId) async {
+  Future<Result<Meeting>> deleteMember(int code, int userId) async {
     return await _sdk.deleteMember(code: code, userId: userId);
   }
 
-  Future<Meeting?> acceptInvite(int meetingId) async {
+  Future<Result<Meeting>> acceptInvite(int meetingId) async {
     return await _sdk.acceptInvite(meetingId: meetingId);
   }
 
-  Future<Meeting?> leaveConversation(int code) async {
+  Future<Result<Meeting>> leaveConversation(int code) async {
     return await _sdk.leaveConversation(code: code);
   }
 
-  Future<Meeting?> archivedConversation(int code) async {
+  Future<Result<Meeting>> archivedConversation(int code) async {
     return await _sdk.archivedConversation(code: code);
   }
 
-  Future<bool> deleteConversation(int conversationId) async {
+  Future<Result<bool>> deleteConversation(int conversationId) async {
     return await _sdk.deleteConversation(conversationId);
   }
 
-  Future<List<Meeting>> getConversations({
+  Future<Result<List<Meeting>>> getConversations({
     required int skip,
     int limit = 10,
     int status = 2,
@@ -318,7 +322,7 @@ class WaterbusSdk {
     );
   }
 
-  Future<List<Meeting>> getArchivedConversations({
+  Future<Result<List<Meeting>>> getArchivedConversations({
     required int skip,
     int limit = 10,
   }) async {
@@ -328,7 +332,7 @@ class WaterbusSdk {
     );
   }
 
-  Future<bool> updateConversation({
+  Future<Result<bool>> updateConversation({
     required Meeting meeting,
     String? password,
   }) async {
@@ -339,7 +343,7 @@ class WaterbusSdk {
   }
 
   // Messages
-  Future<List<MessageModel>> getMessageByRoom({
+  Future<Result<List<MessageModel>>> getMessageByRoom({
     required int meetingId,
     required int skip,
     int limit = 10,
@@ -351,34 +355,34 @@ class WaterbusSdk {
     );
   }
 
-  Future<MessageModel?> sendMessage({
+  Future<Result<MessageModel?>> sendMessage({
     required int meetingId,
     required String data,
   }) async {
     return await _sdk.sendMessage(meetingId: meetingId, data: data);
   }
 
-  Future<MessageModel?> editMessage({
+  Future<Result<MessageModel>> editMessage({
     required int messageId,
     required String data,
   }) async {
     return await _sdk.editMessage(messageId: messageId, data: data);
   }
 
-  Future<MessageModel?> deleteMessage({required int messageId}) async {
+  Future<Result<MessageModel>> deleteMessage({required int messageId}) async {
     return await _sdk.deleteMessage(messageId: messageId);
   }
 
   // Auth
-  Future<User?> createToken(AuthPayloadModel payload) async {
+  Future<Result<User>> createToken(AuthPayloadModel payload) async {
     return await _sdk.createToken(payload: payload);
   }
 
-  Future<bool> deleteToken() async {
+  Future<Result<bool>> deleteToken() async {
     return await _sdk.deleteToken();
   }
 
-  Future<bool?> renewToken() async {
+  Future<Result<bool>> renewToken() async {
     return await _sdk.refreshToken();
   }
 

@@ -1,5 +1,9 @@
 import 'package:equatable/equatable.dart';
 
+part "meeting_failure.dart";
+part "message_failure.dart";
+part "user_failure.dart";
+
 abstract class Failure extends Equatable {
   final String? message;
 

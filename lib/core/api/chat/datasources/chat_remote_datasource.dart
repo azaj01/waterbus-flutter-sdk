@@ -7,25 +7,30 @@ import 'package:waterbus_sdk/constants/api_enpoints.dart';
 import 'package:waterbus_sdk/constants/http_status_code.dart';
 import 'package:waterbus_sdk/core/api/base/base_remote_data.dart';
 import 'package:waterbus_sdk/flutter_waterbus_sdk.dart';
+import 'package:waterbus_sdk/types/models/exceptions/exceptions.dart';
+import 'package:waterbus_sdk/types/result.dart';
 import 'package:waterbus_sdk/utils/encrypt/encrypt.dart';
 
 abstract class ChatRemoteDataSource {
-  Future<List<Meeting>> getConversations({
+  Future<Result<List<Meeting>>> getConversations({
     required int skip,
     required int limit,
     required int status,
   });
-  Future<List<Meeting>> getArchivedConversations({
+  Future<Result<List<Meeting>>> getArchivedConversations({
     required int skip,
     required int limit,
   });
-  Future<bool> deleteConversation({required int meetingId});
-  Future<Meeting?> archivedConversation({required int code});
-  Future<Meeting?> leaveConversation({required int code});
-  Future<Meeting?> addMember({required int code, required int userId});
-  Future<Meeting?> deleteMember({required int code, required int userId});
-  Future<Meeting?> acceptInvite({required int meetingId});
-  Future<bool> updateConversation({
+  Future<Result<bool>> deleteConversation({required int meetingId});
+  Future<Result<Meeting>> archivedConversation({required int code});
+  Future<Result<Meeting>> leaveConversation({required int code});
+  Future<Result<Meeting>> addMember({required int code, required int userId});
+  Future<Result<Meeting>> deleteMember({
+    required int code,
+    required int userId,
+  });
+  Future<Result<Meeting>> acceptInvite({required int meetingId});
+  Future<Result<bool>> updateConversation({
     required Meeting meeting,
     String? password,
   });
@@ -39,7 +44,7 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
   );
 
   @override
-  Future<List<Meeting>> getConversations({
+  Future<Result<List<Meeting>>> getConversations({
     required int skip,
     required int limit,
     required int status,
@@ -57,14 +62,14 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
         "key": WaterbusSdk.privateMessageKey,
       };
 
-      return await compute(_handleDecryptLastMessage, message);
+      return Result.success(await compute(_handleDecryptLastMessage, message));
     }
 
-    return [];
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 
   @override
-  Future<List<Meeting>> getArchivedConversations({
+  Future<Result<List<Meeting>>> getArchivedConversations({
     required int skip,
     required int limit,
   }) async {
@@ -81,10 +86,10 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
         "key": WaterbusSdk.privateMessageKey,
       };
 
-      return await compute(_handleDecryptLastMessage, message);
+      return Result.success(await compute(_handleDecryptLastMessage, message));
     }
 
-    return [];
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 
   static Future<List<Meeting>> _handleDecryptLastMessage(
@@ -115,7 +120,7 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
   }
 
   @override
-  Future<bool> updateConversation({
+  Future<Result<bool>> updateConversation({
     required Meeting meeting,
     String? password,
   }) async {
@@ -124,20 +129,28 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
       meeting.toMapCreate(password: password),
     );
 
-    return response.statusCode == StatusCode.ok;
+    if (response.statusCode == StatusCode.ok) {
+      return Result.success(true);
+    }
+
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 
   @override
-  Future<bool> deleteConversation({required int meetingId}) async {
+  Future<Result<bool>> deleteConversation({required int meetingId}) async {
     final response = await _remoteData.deleteRoute(
       "${ApiEndpoints.chatsConversations}/$meetingId",
     );
 
-    return [StatusCode.ok, StatusCode.created].contains(response.statusCode);
+    if ([StatusCode.ok, StatusCode.created].contains(response.statusCode)) {
+      return Result.success(true);
+    }
+
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 
   @override
-  Future<Meeting?> leaveConversation({required int code}) async {
+  Future<Result<Meeting>> leaveConversation({required int code}) async {
     final Response response = await _remoteData.deleteRoute(
       '${ApiEndpoints.meetings}/$code',
     );
@@ -148,14 +161,16 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
         "key": WaterbusSdk.privateMessageKey,
       };
 
-      return (await compute(_handleDecryptLastMessage, message)).first;
+      return Result.success(
+        (await compute(_handleDecryptLastMessage, message)).first,
+      );
     }
 
-    return null;
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 
   @override
-  Future<Meeting?> acceptInvite({required int meetingId}) async {
+  Future<Result<Meeting>> acceptInvite({required int meetingId}) async {
     final Response response = await _remoteData.postRoute(
       '${ApiEndpoints.acceptInvite}/$meetingId',
     );
@@ -166,14 +181,19 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
         "key": WaterbusSdk.privateMessageKey,
       };
 
-      return (await compute(_handleDecryptLastMessage, message)).first;
+      return Result.success(
+        (await compute(_handleDecryptLastMessage, message)).first,
+      );
     }
 
-    return null;
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 
   @override
-  Future<Meeting?> addMember({required int code, required int userId}) async {
+  Future<Result<Meeting>> addMember({
+    required int code,
+    required int userId,
+  }) async {
     final Response response = await _remoteData.postRoute(
       '${ApiEndpoints.meetingMembers}/$code',
       body: {"userId": userId},
@@ -185,14 +205,16 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
         "key": WaterbusSdk.privateMessageKey,
       };
 
-      return (await compute(_handleDecryptLastMessage, message)).first;
+      return Result.success(
+        (await compute(_handleDecryptLastMessage, message)).first,
+      );
     }
 
-    return null;
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 
   @override
-  Future<Meeting?> deleteMember({
+  Future<Result<Meeting>> deleteMember({
     required int code,
     required int userId,
   }) async {
@@ -207,14 +229,16 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
         "key": WaterbusSdk.privateMessageKey,
       };
 
-      return (await compute(_handleDecryptLastMessage, message)).first;
+      return Result.success(
+        (await compute(_handleDecryptLastMessage, message)).first,
+      );
     }
 
-    return null;
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 
   @override
-  Future<Meeting?> archivedConversation({required int code}) async {
+  Future<Result<Meeting>> archivedConversation({required int code}) async {
     final Response response = await _remoteData.postRoute(
       '${ApiEndpoints.archivedMeeeting}/$code',
     );
@@ -225,9 +249,11 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
         "key": WaterbusSdk.privateMessageKey,
       };
 
-      return (await compute(_handleDecryptLastMessage, message)).first;
+      return Result.success(
+        (await compute(_handleDecryptLastMessage, message)).first,
+      );
     }
 
-    return null;
+    return Result.failure(response.data['message'].toString().meetingException);
   }
 }

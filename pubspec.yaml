@@ -14,14 +14,14 @@ dependencies:
     sdk: flutter
 
   # Network
-  connectivity_plus: ^6.0.5
+  connectivity_plus: ^6.1.1
   rhttp: ^0.9.8
   http: ^1.2.2
   dio: ^5.6.0
   dio_smart_retry: ^6.0.0
-  dio_cache_interceptor: ^3.5.0
+  dio_cache_interceptor: ^3.5.1
   dio_compatibility_layer: ^0.1.0
-  socket_io_client: ^2.0.3+1
+  socket_io_client: ^3.0.2
 
   # Storage
   hive: ^2.2.3
@@ -30,7 +30,7 @@ dependencies:
   collection: '^1.16.0'
   universal_io: ^2.2.2
   equatable: ^2.0.5
-  logger: ^2.4.0
+  logger: ^2.5.0
   path_provider: ^2.1.4
   wakelock_plus: ^1.2.8
   replay_kit_launcher: ^1.0.0
@@ -47,19 +47,19 @@ dependencies:
   #   path: /Users/lambiengcode/Documents/waterbus/flutter-webrtc-plus
     
   # Dependency Injection
-  get_it: ^7.6.8
+  get_it: ^8.0.3
   injectable: ^2.4.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   # Lints
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
   import_sorter: ^4.6.0
 
   # Code Generator
   injectable_generator: ^2.6.2
-  build_runner: ^2.4.12
+  build_runner: ^2.4.13
   mockito: ^5.4.4
 
 # For information on the generic Dart part of this file, see the
@@ -83,3 +83,4 @@ topics:
   - sfu
   - video
   - conferencing
+  - waterbus
