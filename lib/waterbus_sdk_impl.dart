@@ -117,8 +117,10 @@ class SdkCore extends WaterbusSdkInterface {
       );
     }
 
-    if (room.value != null) {
-      final Meeting meeting = room.value!;
+    if (room.isSuccess) {
+      final Meeting? meeting = room.value;
+
+      if (meeting == null) return Result.failure(room.error ?? ServerFailure());
 
       final int mParticipantIndex = meeting.participants.lastIndexWhere(
         (participant) => participant.isMe,
@@ -137,9 +139,11 @@ class SdkCore extends WaterbusSdkInterface {
           .toList();
 
       _subscribe(targetIds);
-    }
 
-    return Result.success(meeting);
+      return Result.success(meeting);
+    } else {
+      return Result.failure(room.error ?? ServerFailure());
+    }
   }
 
   @override
