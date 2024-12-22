@@ -1,3 +1,8 @@
+## 1.5.3
+
+* [Fix] fix rear camera rotation on android
+* [Sdk] refactor return type with exception
+
 ## 1.5.2
 
 * [Feat] add white board
